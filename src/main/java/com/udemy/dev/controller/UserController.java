@@ -1,11 +1,13 @@
 package com.udemy.dev.controller;
 
 import com.udemy.dev.entity.User;
+import com.udemy.dev.errorhandling.DataNotFoundException;
 import com.udemy.dev.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/users")
@@ -20,10 +22,17 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
-        return userService.findById(id).getBody();
+        List<User> users = Objects.requireNonNull(userService.findUsers().getBody()).stream().filter(user -> user.getId().equals(id)).toList();
+        if (users.isEmpty()) {
+            throw new DataNotFoundException("No user found with given id: " +
+                    id);
+        }
+        else {
+            return users.get(0);
+        }
     }
 
-    @GetMapping("")
+    @GetMapping({"/",""})
     public List<User> getUsers() {
         return userService.findUsers().getBody();
     }

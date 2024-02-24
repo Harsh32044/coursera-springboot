@@ -9,10 +9,22 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
-public class InvalidRoutesHandler {
+public class _ExceptionHandler {
 
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<Object> handleInvalidRoutes(ServletException e) {
         return new ResponseEntity<>("404 - You chose the wrong route son.", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<DataNotFoundResponse> handleDataNotFound(Exception e) {
+
+        DataNotFoundResponse dataNotFoundResponse = new DataNotFoundResponse();
+
+        dataNotFoundResponse.setMessage(e.getMessage());
+        dataNotFoundResponse.setTimeStamp(System.currentTimeMillis());
+        dataNotFoundResponse.setStatus(HttpStatus.NOT_FOUND.value());
+
+        return new ResponseEntity<>(dataNotFoundResponse, HttpStatus.NOT_FOUND);
     }
 }
