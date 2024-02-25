@@ -1,30 +1,51 @@
 package com.udemy.dev.errorhandling;
 
 import jakarta.servlet.ServletException;
+import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.sql.SQLException;
+
 @ControllerAdvice
 public class _ExceptionHandler {
 
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
-    public ResponseEntity<Object> handleInvalidRoutes(ServletException e) {
-        return new ResponseEntity<>("404 - You chose the wrong route son.", HttpStatus.NOT_FOUND);
+    public ResponseEntity<GenericServerErrorResponse> handleInvalidRoutes(ServletException e) {
+        GenericServerErrorResponse objDnf = new GenericServerErrorResponse();
+
+        objDnf.setMessage(e.getMessage());
+        objDnf.setStatus(HttpStatus.NOT_FOUND.value());
+        objDnf.setTimeStamp(System.currentTimeMillis());
+        return new ResponseEntity<>(objDnf, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(DataNotFoundException.class)
-    public ResponseEntity<DataNotFoundResponse> handleDataNotFound(Exception e) {
+    @ExceptionHandler(GenericException.class)
+    public ResponseEntity<GenericServerErrorResponse> handleDataNotFound(GenericException e) {
 
-        DataNotFoundResponse dataNotFoundResponse = new DataNotFoundResponse();
+        GenericServerErrorResponse genericServerErrorResponse = new GenericServerErrorResponse();
 
-        dataNotFoundResponse.setMessage(e.getMessage());
-        dataNotFoundResponse.setTimeStamp(System.currentTimeMillis());
-        dataNotFoundResponse.setStatus(HttpStatus.NOT_FOUND.value());
+        genericServerErrorResponse.setMessage(e.getMessage());
+        genericServerErrorResponse.setTimeStamp(System.currentTimeMillis());
+        genericServerErrorResponse.setStatus(HttpStatus.NOT_FOUND.value());
 
-        return new ResponseEntity<>(dataNotFoundResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(genericServerErrorResponse, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<GenericServerErrorResponse> handleServerErrors(SQLException e) {
+        GenericServerErrorResponse genericServerErrorResponse = new GenericServerErrorResponse();
+
+        genericServerErrorResponse.setMessage(e.getMessage());
+        genericServerErrorResponse.setTimeStamp(System.currentTimeMillis());
+        genericServerErrorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        return new ResponseEntity<>(genericServerErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }
