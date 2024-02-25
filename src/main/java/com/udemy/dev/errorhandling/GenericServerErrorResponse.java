@@ -1,14 +1,14 @@
 package com.udemy.dev.errorhandling;
 
-public class DataNotFoundResponse {
+public class GenericServerErrorResponse {
     private int status;
     private String message;
     private long timeStamp;
 
-    public DataNotFoundResponse() {
+    public GenericServerErrorResponse() {
     }
 
-    public DataNotFoundResponse(int status, String message, long timeStamp) {
+    public GenericServerErrorResponse(int status, String message, long timeStamp) {
         this.status = status;
         this.message = message;
         this.timeStamp = timeStamp;
